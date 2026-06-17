@@ -58,7 +58,7 @@ One dominant label only. If two framings are plausible, choose the dominant one 
 | `positive` | The relation is presented as love, solidarity, attachment, care, mutual recognition, or a livable bond. |
 | `neutral_ambivalent` | The relation is neither clearly condemned nor clearly valorized, or the judgment remains mixed. |
 | `eroticized_exoticized` | The relation is framed as spectacle, sensual curiosity, voyeuristic scene, exotic setting, or erotic ornament. |
-| `decadent_sublime` | The relation is morbid, painful, sacrificial, sacred, aestheticized, feverish, cruel, or sublime, without being reducible to moral condemnation or medical pathology. This was added after the pilot annotation of Renée Vivien's *Une femme m'apparut*. |
+| `decadent_sublime` | The relation is morbid, painful, sacrificial, sacred, aestheticized, feverish, cruel, or sublime, without being reducible to moral condemnation or medical pathology. |
 | `redemptive_spiritualized` | The relation is framed as salvation, spiritual refuge, healing, purification, compassion, or quasi-religious rescue. |
 | `moralized_pathologized` | The relation is associated with vice, sin, degeneration, illness, hysteria, perversion, crime, or moral decline. |
 | `comic_caricatural` | The relation or character is framed as ridiculous, grotesque, satirical, or comic. |
