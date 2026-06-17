@@ -12,18 +12,22 @@ Each novel may contain zero, one, or several annotated relationships.
 
 The scheme is deliberately modest. The LLM should not decide whether a passage belongs to a sophisticated theoretical category. Instead, it annotates five simpler dimensions: configuration, explicitness, centrality, framing, and outcome. Scholarly interpretation can then be built from combinations of these variables.
 
+Important distinction: `relation_type` describes the **gender configuration of the characters involved**, not the certainty that the relation is romantic or sexual. Ambiguity is handled symmetrically through `explicitness` and `confidence`. For instance, a possibly romantic friendship between two women should be coded as `female_female` plus `coded` or `weak_inference`, not as a separate asymmetric label such as `same_sex_ambiguous`.
+
 ## 1. `relation_type`
 
 One label only.
 
 | Label | Definition |
 |---|---|
-| `heterosexual` | Relation between a male and a female character: romantic, conjugal, sexual, adulterous, or desirous. |
-| `female_female` | Relation between two characters identified as female: romantic, conjugal, sexual, adulterous, or desirous. |
-| `male_male` |  Relation between two characters identified as male: romantic, conjugal, sexual, adulterous, or desirous.  |
-| `same_sex_ambiguous` | Strong same-sex intimacy, fascination, jealousy, reputation, household, or devotion, but the text does not make romance/sexuality clear enough. Use this instead of overcoding friendship as queer romance. |
-| `mixed_triangle` | A triangular or multi-person configuration mixing heterosexual and same-sex desire. |
-| `unclear` | A relation is present, but its gendered configuration cannot be reliably determined. |
+| `female_male` | Relation between one character identified as female and one character identified as male: romantic, conjugal, sexual, adulterous, desirous, or strongly coded as such. |
+| `female_female` | Relation between two characters identified as female: romantic, conjugal, sexual, adulterous, desirous, or strongly coded as such. |
+| `male_male` | Relation between two characters identified as male: romantic, conjugal, sexual, adulterous, desirous, or strongly coded as such. |
+| `mixed_or_multi` | Triangular, collective, or multi-person configuration that cannot be reduced to a single pair, or that mixes several gender configurations. |
+| `unknown_gender` | A relation is present, but the gender of one or more participants cannot be reliably determined. |
+| `unclear` | A relation candidate is present, but its relational configuration cannot be reliably determined. |
+
+Do **not** create separate labels such as `female_female_ambiguous`, `male_male_ambiguous`, or `female_male_ambiguous`. Use the relevant configuration label above, then mark the uncertainty with `explicitness = coded`, `rumor`, or `weak_inference`, and with `confidence = medium` or `low`.
 
 ## 2. `explicitness`
 
