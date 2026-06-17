@@ -97,9 +97,9 @@ The model must provide 1 to 3 pieces of short evidence. Prefer brief paraphrases
 
 ## Recommended analysis strategy
 
-Run two analyses:
+Run at least two analyses:
 
 1. **Broad**: include `high`, `medium`, and perhaps `low` cases.
 2. **Conservative**: include only `high` and `medium`, and exclude `weak_inference` unless manually validated.
 
-For publication, report which analysis is primary and which is robustness checking.
+Either we choose, either we keep both and use this as robustness check (ablation with all different values could also work, we'll see).
