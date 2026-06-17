@@ -1,0 +1,33 @@
+{
+  "title": "Novel relationship annotation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["novel_id", "relations"],
+  "properties": {
+    "novel_id": {"type": "string"},
+    "title": {"type": "string"},
+    "author": {"type": "string"},
+    "year": {"type": ["integer", "string", "null"]},
+    "corpus_notes": {"type": "string"},
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["relation_id", "characters", "relation_type", "explicitness", "centrality", "framing", "outcome", "evidence", "confidence", "comment"],
+        "properties": {
+          "relation_id": {"type": "string"},
+          "characters": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "relation_type": {"type": "string", "enum": ["heterosexual", "female_female", "male_male", "same_sex_ambiguous", "mixed_triangle", "unclear"]},
+          "explicitness": {"type": "string", "enum": ["explicit", "coded", "rumor", "weak_inference", "unclear"]},
+          "centrality": {"type": "string", "enum": ["main", "secondary", "episode", "milieu", "unclear"]},
+          "framing": {"type": "string", "enum": ["positive", "neutral_ambivalent", "eroticized_exoticized", "decadent_sublime", "redemptive_spiritualized", "moralized_pathologized", "comic_caricatural", "predatory_or_corrupting", "unclear"]},
+          "outcome": {"type": "string", "enum": ["stable_or_open", "open_contested", "return_to_norm", "separation_erasure", "social_disgrace", "illness_madness_decline", "fatal_ending", "unclear"]},
+          "evidence": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"type": "string"}},
+          "confidence": {"type": "string", "enum": ["high", "medium", "low", "exclude"]},
+          "comment": {"type": "string"}
+        }
+      }
+    }
+  }
+}
