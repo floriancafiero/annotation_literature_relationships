@@ -1,0 +1,22 @@
+# Replace these slugs with the exact OpenRouter model ids you want to benchmark.
+# Keep the same parameters across models for the main comparison.
+
+models:
+  - openai/gpt-4.1-mini
+  - anthropic/claude-sonnet-4
+  - google/gemini-2.5-flash
+  - mistralai/mistral-medium-3
+  - meta-llama/llama-3.3-70b-instruct
+
+parameters:
+  temperature: 0
+  top_p: 1
+  top_k: 1
+  seed: 42
+  max_tokens: 4096
+  frequency_penalty: 0
+  presence_penalty: 0
+
+openrouter:
+  http_referer: "https://github.com/floriancafiero/annotation_llm_violette"
+  title: "Annotation LLM Violette"
