@@ -4,13 +4,13 @@
 
 Annotate one relationship at a time. A relationship is a romantic, erotic, sexual, conjugal, desirous, or strongly ambiguous relation between two characters or groups of characters.
 
-Do not annotate ordinary friendship unless the text strongly romanticizes, eroticizes, scandalizes, pathologizes, or codes it as potentially amorous/sexual.
+Do not annotate ordinary friendship unless the text strongly romanticizes, eroticizes, scandalizes, pathologizes, or codes it as potentially amorous or sexual.
 
 Each novel may contain zero, one, or several annotated relationships.
 
 ## Core principle
 
-The scheme is deliberately modest. The LLM should not decide whether a passage is, for example, "Sedgwickian homosexual panic" or "decadent lesbianism". Instead, it annotates five simpler dimensions: configuration, explicitness, centrality, framing, and outcome. Scholarly interpretation can then be built from combinations of these variables.
+The scheme is deliberately modest. The LLM should not decide whether a passage belongs to a sophisticated theoretical category. Instead, it annotates five simpler dimensions: configuration, explicitness, centrality, framing, and outcome. Scholarly interpretation can then be built from combinations of these variables.
 
 ## 1. `relation_type`
 
@@ -22,7 +22,7 @@ One label only.
 | `female_female` | Clearly romantic, erotic, sexual, or desirous relation between women. Non-sexual but clearly amorous relations may be included. |
 | `male_male` | Clearly romantic, erotic, sexual, or desirous relation between men. |
 | `same_sex_ambiguous` | Strong same-sex intimacy, fascination, jealousy, reputation, household, or devotion, but the text does not make romance/sexuality clear enough. Use this instead of overcoding friendship as queer romance. |
-| `mixed_triangle` | A triangular or multi-person configuration mixing heterosexual and same-sex desire, for example a woman, her husband/lover, and a female lover; or a homosocial male triangle mediated by a woman. |
+| `mixed_triangle` | A triangular or multi-person configuration mixing heterosexual and same-sex desire. |
 | `unclear` | A relation is present, but its gendered configuration cannot be reliably determined. |
 
 ## 2. `explicitness`
@@ -77,7 +77,7 @@ One label only.
 | `separation_erasure` | The relation ends through separation, disappearance, forgetting, narrative marginalization, or erasure. |
 | `social_disgrace` | The relation leads to scandal, reputational ruin, exclusion, blackmail, or public shame. |
 | `illness_madness_decline` | The relation is followed by illness, madness, physical decline, moral degradation, or psychological collapse. |
-| `death_suicide_murder` | One or more characters die, commit suicide, are killed, or are sacrificed in connection with the relation. |
+| `fatal_ending` | The relation is followed by a fatal narrative resolution affecting one or more central characters. |
 | `unclear` | Outcome cannot be determined. |
 
 ## Evidence
