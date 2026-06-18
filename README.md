@@ -25,6 +25,18 @@ It also receives short evidence, a confidence level, and a brief comment.
 
 `relation_type` describes the gender configuration of the participants (`female_male`, `female_female`, `male_male`, `mixed_or_multi`, `unknown_gender`, `unclear`). It does not encode whether the relation is certainly romantic or sexual.
 
+## Prompt architecture
+
+The codebook is the single source of truth for label definitions. The runner reads `codebook/annotation_grid.md` and injects it into the model context at runtime, after the stable system prompt and before the user prompt.
+
+This keeps the prompts short and avoids maintaining duplicate definitions in several files:
+
+- `prompts/system_prompt.md` gives the general annotation role and decision principles;
+- `codebook/annotation_grid.md` defines the annotation unit and all labels;
+- `prompts/user_prompt_template.md` supplies the novel metadata and text.
+
+For reproducibility, each output record logs the path and SHA-256 hash of the schema, codebook, system prompt, and user template used for the request.
+
 ## Repository layout
 
 ```text
@@ -43,8 +55,8 @@ data/ground_truth_sample.jsonl           Example ground truth format
 ## Installation
 
 ```bash
-git clone https://github.com/floriancafiero/annotation_llm_violette.git
-cd annotation_llm_violette
+git clone https://github.com/floriancafiero/annotation_literature_relationships.git
+cd annotation_literature_relationships
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -97,12 +109,13 @@ python src/annotate_openrouter.py \
   --output runs/predictions.jsonl \
   --models-config config/models.local.yaml \
   --schema schemas/novel_annotation.schema.json \
+  --codebook codebook/annotation_grid.md \
   --max-chars 120000
 ```
 
 By default, the script refuses to silently truncate texts longer than `--max-chars`. Use `--allow-truncate` only for documented experiments where the same fixed truncation is intended for all models.
 
-The script records, for each novel and model: model slug, generation parameters, SHA-256 hash of the input text, request body, raw response, parsed JSON annotation, and JSON-schema validation status.
+The script records, for each novel and model: model slug, generation parameters, SHA-256 hash of the input text, schema/codebook/prompt hashes, request body, raw response, parsed JSON annotation, and JSON-schema validation status.
 
 ## Reproducibility settings
 
