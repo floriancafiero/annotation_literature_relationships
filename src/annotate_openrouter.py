@@ -1,11 +1,4 @@
 #!/usr/bin/env python3
-"""Run relationship annotation through OpenRouter.
-
-Input: JSONL with one novel per line.
-Required fields: novel_id, text. Optional: title, author, year.
-Output: JSONL with raw request, raw response, parsed annotation and validation status.
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -57,6 +50,15 @@ def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def build_system_context(system_prompt: str, codebook: str) -> str:
+    return (
+        system_prompt.strip()
+        + "\n\nBEGIN CODEBOOK\n"
+        + codebook.strip()
+        + "\nEND CODEBOOK\n"
+    )
+
+
 def format_prompt(template: str, novel: Dict[str, Any], max_chars: int, allow_truncate: bool) -> tuple[str, bool]:
     text = novel.get("text", "")
     if not isinstance(text, str) or not text.strip():
@@ -66,32 +68,31 @@ def format_prompt(template: str, novel: Dict[str, Any], max_chars: int, allow_tr
         if not allow_truncate:
             raise ValueError(
                 f"Novel {novel.get('novel_id')} has {len(text)} characters, above --max-chars={max_chars}. "
-                "Use --allow-truncate only for experiments where truncation is intended and documented."
+                "Use --allow-truncate only when fixed truncation is intended and documented."
             )
         text = text[:max_chars]
         truncated = True
-    prompt = template.format(
+    return template.format(
         novel_id=novel.get("novel_id", ""),
         title=novel.get("title", ""),
         author=novel.get("author", ""),
         year=novel.get("year", ""),
         text=text,
-    )
-    return prompt, truncated
+    ), truncated
 
 
 def build_request(
     model: str,
-    system_prompt: str,
+    system_context: str,
     user_prompt: str,
     schema: Dict[str, Any],
     params: Dict[str, Any],
-    use_json_schema: bool = True,
+    use_json_schema: bool,
 ) -> Dict[str, Any]:
     body: Dict[str, Any] = {
         "model": model,
         "messages": [
-            {"role": "system", "content": system_prompt},
+            {"role": "system", "content": system_context},
             {"role": "user", "content": user_prompt},
         ],
         "stream": False,
@@ -119,10 +120,7 @@ def build_request(
 
 
 def call_openrouter(api_key: str, body: Dict[str, Any], app_cfg: Dict[str, Any], timeout: int, retries: int) -> Dict[str, Any]:
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
+    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     if app_cfg.get("http_referer"):
         headers["HTTP-Referer"] = app_cfg["http_referer"]
     if app_cfg.get("title"):
@@ -138,7 +136,7 @@ def call_openrouter(api_key: str, body: Dict[str, Any], app_cfg: Dict[str, Any],
             last_error = repr(exc)
             if attempt >= retries:
                 break
-            time.sleep(2 ** attempt)
+            time.sleep(2**attempt)
     raise RuntimeError(f"OpenRouter request failed after {retries + 1} attempts: {last_error}")
 
 
@@ -165,17 +163,18 @@ def validate_annotation(annotation: Dict[str, Any] | None, schema: Dict[str, Any
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", required=True, help="Input JSONL corpus")
-    parser.add_argument("--output", required=True, help="Output JSONL file")
-    parser.add_argument("--models-config", required=True, help="YAML config with models and parameters")
-    parser.add_argument("--schema", required=True, help="JSON schema path")
+    parser.add_argument("--input", required=True)
+    parser.add_argument("--output", required=True)
+    parser.add_argument("--models-config", required=True)
+    parser.add_argument("--schema", required=True)
+    parser.add_argument("--codebook", default="codebook/annotation_grid.md")
     parser.add_argument("--system-prompt", default="prompts/system_prompt.md")
     parser.add_argument("--user-template", default="prompts/user_prompt_template.md")
     parser.add_argument("--max-chars", type=int, default=120000)
     parser.add_argument("--allow-truncate", action="store_true")
     parser.add_argument("--timeout", type=int, default=180)
     parser.add_argument("--retries", type=int, default=2)
-    parser.add_argument("--no-json-schema", action="store_true", help="Use json_object instead of strict json_schema")
+    parser.add_argument("--no-json-schema", action="store_true")
     parser.add_argument("--limit", type=int, default=None)
     args = parser.parse_args()
 
@@ -193,34 +192,48 @@ def main() -> None:
 
     schema = read_json(args.schema)
     system_prompt = read_text(args.system_prompt)
+    codebook = read_text(args.codebook)
     user_template = read_text(args.user_template)
+    system_context = build_system_context(system_prompt, codebook)
     novels = list(read_jsonl(args.input))
     if args.limit is not None:
         novels = novels[: args.limit]
+
+    schema_sha256 = sha256_text(json.dumps(schema, ensure_ascii=False, sort_keys=True))
+    codebook_sha256 = sha256_text(codebook)
+    system_prompt_sha256 = sha256_text(system_prompt)
+    user_template_sha256 = sha256_text(user_template)
 
     for novel in tqdm(novels, desc="novels"):
         user_prompt, truncated = format_prompt(novel, args.max_chars, args.allow_truncate)
         for model in models:
             request_body = build_request(
                 model=model,
-                system_prompt=system_prompt,
+                system_context=system_context,
                 user_prompt=user_prompt,
                 schema=schema,
                 params=params,
                 use_json_schema=not args.no_json_schema,
             )
-            started = dt.datetime.utcnow().isoformat() + "Z"
             record: Dict[str, Any] = {
                 "novel_id": novel.get("novel_id"),
                 "title": novel.get("title"),
                 "author": novel.get("author"),
                 "year": novel.get("year"),
                 "model": model,
-                "started_at_utc": started,
+                "started_at_utc": dt.datetime.utcnow().isoformat() + "Z",
                 "input_sha256": sha256_text(novel.get("text", "")),
                 "input_num_chars": len(novel.get("text", "")),
                 "truncated": truncated,
                 "parameters": params,
+                "schema_path": args.schema,
+                "schema_sha256": schema_sha256,
+                "codebook_path": args.codebook,
+                "codebook_sha256": codebook_sha256,
+                "system_prompt_path": args.system_prompt,
+                "system_prompt_sha256": system_prompt_sha256,
+                "user_template_path": args.user_template,
+                "user_template_sha256": user_template_sha256,
                 "request": request_body,
             }
             try:
